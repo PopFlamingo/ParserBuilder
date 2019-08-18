@@ -91,7 +91,7 @@ final class ParserBuilderTests: XCTestCase {
         
         let emailMatcher = user  + "@" + letter.count(2...) + "." + letter.count(2...)
         let test = "ab_cd@example.org"
-        // XCTAssertEqual(emailMatcher.advancedIndex(in: test), test.endIndex)
+        XCTAssertEqual(emailMatcher.advancedIndex(in: test), test.endIndex)
     }
         
     static var allTests = [
