@@ -1,44 +1,54 @@
-struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
+public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
     
-    init(stringLiteral value: String) {
+    @inlinable
+    public init(stringLiteral value: String) {
         self.matcher = .string(value)
     }
     
-    init(arrayLiteral elements: Matcher...) {
+    @inlinable
+    public init(arrayLiteral elements: Matcher...) {
         self = .init(elements)
     }
     
-    init(_ matcherArray: [Matcher]) {
+    @inlinable
+    public init(_ matcherArray: [Matcher]) {
         self = matcherArray.reduce(Matcher(""), ||)
     }
     
-    init(_ matchedString: String) {
+    @inlinable
+    public init(_ matchedString: String) {
         self.matcher = .string(matchedString)
     }
     
-    init(_ predicate: @escaping (Character)->Bool) {
+    @inlinable
+    public init(_ predicate: @escaping (Character)->Bool) {
         self.matcher = .predicate(predicate)
     }
     
-    init(_ characterRange: ClosedRange<Character>) {
+    @inlinable
+    public init(_ characterRange: ClosedRange<Character>) {
         self = .init { character in
             characterRange.contains(character)
         }
     }
     
-    private init(matcher: InternalMatcher) {
+    @usableFromInline
+    init(matcher: InternalMatcher) {
         self.matcher = matcher
     }
     
-    static func +(lhs: Matcher, rhs: Matcher) -> Matcher {
+    @inlinable
+    public static func +(lhs: Matcher, rhs: Matcher) -> Matcher {
         return Matcher(matcher: .concatenation(lhs, rhs))
     }
     
-    static func ||(lhs: Matcher, rhs: Matcher) -> Matcher {
+    @inlinable
+    public static func ||(lhs: Matcher, rhs: Matcher) -> Matcher {
         return Matcher(matcher: .or(lhs, rhs))
     }
     
-    func advancedIndex<T: StringProtocol>(in string: T) -> String.Index? {
+    @inlinable
+    public func advancedIndex<T: StringProtocol>(in string: T) -> String.Index? {
         switch self.matcher {
         case .string(let matchedString):
             guard matchedString != "" else {
@@ -110,37 +120,45 @@ struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
         }
     }
     
-    func count(_ repeatRange: PartialRangeThrough<Int>) -> Matcher {
+    @inlinable
+    public func count(_ repeatRange: PartialRangeThrough<Int>) -> Matcher {
         precondition(repeatRange.upperBound >= 0)
         return Matcher(matcher: .repeated(self, nil, repeatRange.upperBound, true))
     }
     
-    func count(_ repeatRange: PartialRangeFrom<Int>) -> Matcher {
+    @inlinable
+    public func count(_ repeatRange: PartialRangeFrom<Int>) -> Matcher {
         precondition(repeatRange.lowerBound >= 0)
         return Matcher(matcher: .repeated(self, repeatRange.lowerBound, nil, true))
     }
     
-    func count(_ repeatRange: ClosedRange<Int>) -> Matcher {
+    @inlinable
+    public func count(_ repeatRange: ClosedRange<Int>) -> Matcher {
         precondition(repeatRange.lowerBound >= 0 && repeatRange.upperBound >= 0)
         return Matcher(matcher: .repeated(self, repeatRange.lowerBound, repeatRange.upperBound, true))
     }
     
-    func count(_ repeatRange: Range<Int>) -> Matcher {
+    @inlinable
+    public func count(_ repeatRange: Range<Int>) -> Matcher {
         precondition(repeatRange.lowerBound >= 0 && repeatRange.upperBound >= 0)
         return Matcher(matcher: .repeated(self, repeatRange.lowerBound, repeatRange.upperBound, false))
     }
     
-    func count(_ times: Int) -> Matcher {
+    @inlinable
+    public func count(_ times: Int) -> Matcher {
         self.count(times...times)
     }
     
-    func optional() -> Matcher {
+    @inlinable
+    public func optional() -> Matcher {
         return self.count(0...1)
     }
     
-    private let matcher: InternalMatcher
+    @usableFromInline
+    let matcher: InternalMatcher
     
-    private indirect enum InternalMatcher {
+    @usableFromInline
+    indirect enum InternalMatcher {
         case string(String)
         case predicate((Character)->Bool)
         case concatenation(Matcher, Matcher)

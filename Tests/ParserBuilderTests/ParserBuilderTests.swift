@@ -1,5 +1,5 @@
 import XCTest
-@testable import ParserBuilder
+import ParserBuilder
 
 final class ParserBuilderTests: XCTestCase {
     
@@ -90,12 +90,27 @@ final class ParserBuilderTests: XCTestCase {
         
         var idx = ["".startIndex]
         for _ in 1...1_000_000 {
-            let test = "abc_a@foo.com"
+            let test = "abca@foo.com"
             idx[0] = emailMatcher.advancedIndex(in: test)!
-            print(test[idx[0]])
         }
         print(idx.count)
         // XCTAssertEqual(emailMatcher.advancedIndex(in: "foobar@example.org"), "foobar@example.org".endIndex)
+    }
+    
+    func testExtractEmails() {
+        let someString = """
+        hey@lol.com
+        amazing@example.org
+        """
+        
+        let letter = Matcher("a"..."z")
+        let number = Matcher("0"..."9")
+        let user = (Matcher([".", "-", "_"]).optional() + (letter || number)).count(1...)
+        let emailMatcher = user  + "@" + letter.count(2...) + "." + letter.count(2...)
+        
+        for match in Extractor(someString).matches(for: emailMatcher) {
+            print("Email:", match)
+        }
     }
         
     static var allTests = [
