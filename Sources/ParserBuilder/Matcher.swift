@@ -101,7 +101,7 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
                 return nil
             }
             let secondIndex = second.advancedIndex(in: string[firstIndex...])
-            return secondIndex != firstIndex ? secondIndex : nil
+            return secondIndex
             
         case .repeated(let matcher, let min, let max, let maxIsIncluded):
             if let max = max, max == 0 {

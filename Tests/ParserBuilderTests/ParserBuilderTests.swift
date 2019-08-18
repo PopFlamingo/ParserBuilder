@@ -99,7 +99,6 @@ final class ParserBuilderTests: XCTestCase {
         XCTAssertNil(aOrEven.advancedIndex(in: "bc37"))
         
         // E-mail
-        
         let letter = Matcher("a"..."z")
         let number = Matcher("0"..."9")
         
@@ -108,6 +107,14 @@ final class ParserBuilderTests: XCTestCase {
         let emailMatcher = user  + "@" + domain
         let test = "ab_cd@example.org"
         XCTAssertEqual(emailMatcher.advancedIndex(in: test), test.endIndex)
+    }
+    
+    func testConcatOpt() {
+        let foo = "aba"
+        let bar = "aa"
+        let matcher = Matcher("a") + Matcher("b").optional() + Matcher("a")
+        XCTAssertEqual(matcher.advancedIndex(in: foo), foo.endIndex)
+        XCTAssertEqual(matcher.advancedIndex(in: bar), bar.endIndex)
     }
         
     static var allTests = [
@@ -121,5 +128,6 @@ final class ParserBuilderTests: XCTestCase {
         ("testMatcherPredicate", testMatcherPredicate),
         ("testMatcherArray", testMatcherArray),
         ("testMatcherMix", testMatcherMix),
+        ("testConcatOpt", testConcatOpt)
     ]
 }
