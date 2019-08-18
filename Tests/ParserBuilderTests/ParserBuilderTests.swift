@@ -85,32 +85,13 @@ final class ParserBuilderTests: XCTestCase {
         
         let letter = Matcher("a"..."z")
         let number = Matcher("0"..."9")
-        let user = (Matcher([".", "-", "_"]).optional() + (letter || number)).count(1...)
+        let user = (Matcher(["_"]).optional() + (letter || number)).count(1...)
+        
+        XCTAssertEqual(user.advancedIndex(in: "_c"), "_c".endIndex)
+        
         let emailMatcher = user  + "@" + letter.count(2...) + "." + letter.count(2...)
-        
-        var idx = ["".startIndex]
-        for _ in 1...1_000_000 {
-            let test = "abca@foo.com"
-            idx[0] = emailMatcher.advancedIndex(in: test)!
-        }
-        print(idx.count)
-        // XCTAssertEqual(emailMatcher.advancedIndex(in: "foobar@example.org"), "foobar@example.org".endIndex)
-    }
-    
-    func testExtractEmails() {
-        let someString = """
-        hey@lol.com
-        amazing@example.org
-        """
-        
-        let letter = Matcher("a"..."z")
-        let number = Matcher("0"..."9")
-        let user = (Matcher([".", "-", "_"]).optional() + (letter || number)).count(1...)
-        let emailMatcher = user  + "@" + letter.count(2...) + "." + letter.count(2...)
-        
-        for match in Extractor(someString).matches(for: emailMatcher) {
-            print("Email:", match)
-        }
+        let test = "ab_cd@example.org"
+        // XCTAssertEqual(emailMatcher.advancedIndex(in: test), test.endIndex)
     }
         
     static var allTests = [
