@@ -1,10 +1,15 @@
 public struct Extractor {
+    @inlinable
     public init(_ string: String) {
         self.string = string
         self.currentIndex = string.startIndex
     }
-    private let string: String
-    private var currentIndex: String.Index
+    @usableFromInline
+    let string: String
+    @usableFromInline
+    var currentIndex: String.Index
+    
+    @inlinable
     mutating public func matches(for matcher: Matcher) -> [Substring] {
         var matches = [Substring]()
         while currentIndex < string.endIndex {
@@ -17,7 +22,7 @@ public struct Extractor {
         }
         return matches
     }
-    
+    @inlinable
     public mutating func peekCurrent(with matcher: Matcher) -> Substring? {
         guard currentIndex < string.endIndex else {
             return nil
@@ -30,6 +35,7 @@ public struct Extractor {
     }
     
     @discardableResult
+    @inlinable
     public mutating func popCurrent(with matcher: Matcher) -> Substring? {
         guard currentIndex < string.endIndex else {
             return nil
