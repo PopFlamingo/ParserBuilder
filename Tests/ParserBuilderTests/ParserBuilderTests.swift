@@ -63,6 +63,14 @@ final class ParserBuilderTests: XCTestCase {
         XCTAssertNil(Matcher({ $0.isNumber }).advancedIndex(in: "hello"))
     }
     
+    func testMatcherArray() {
+        let matcher: Matcher = ["a","b","c"]
+        let orMatcher = Matcher("a") || Matcher("b") || Matcher("c")
+        XCTAssertEqual(matcher.advancedIndex(in: "abababa"), orMatcher.advancedIndex(in: "abababa"))
+        XCTAssertEqual(matcher.advancedIndex(in: "xyz"), orMatcher.advancedIndex(in: "xyz"))
+        XCTAssertEqual(matcher.advancedIndex(in: "axyz"), orMatcher.advancedIndex(in: "axyz"))
+    }
+    
     func testMatcherMix() {
         let matcher: Matcher = (Matcher("abc") + Matcher("a").count(3...3)) || Matcher({ $0.isNumber }).count(1...)
         XCTAssertEqual(matcher.advancedIndex(in: "abcaaa"), "abcaaa".endIndex)
@@ -86,9 +94,6 @@ final class ParserBuilderTests: XCTestCase {
         let letter = Matcher("a"..."z")
         let number = Matcher("0"..."9")
         let user = (Matcher(["_", "-", "."]).optional() + (letter || number)).count(1...)
-        
-        XCTAssertEqual(user.advancedIndex(in: "_c"), "_c".endIndex)
-        
         let emailMatcher = user  + "@" + letter.count(2...) + "." + letter.count(2...)
         let test = "ab_cd@example.org"
         XCTAssertEqual(emailMatcher.advancedIndex(in: test), test.endIndex)
@@ -103,6 +108,7 @@ final class ParserBuilderTests: XCTestCase {
         ("testMatcherMultipleRepetitions", testMatcherMultipleRepetitions),
         ("testMatcherOr", testMatcherOr),
         ("testMatcherPredicate", testMatcherPredicate),
+        ("testMatcherArray", testMatcherArray),
         ("testMatcherMix", testMatcherMix),
     ]
 }
