@@ -85,7 +85,7 @@ final class ParserBuilderTests: XCTestCase {
         
         let letter = Matcher("a"..."z")
         let number = Matcher("0"..."9")
-        let user = (Matcher(["_"]).optional() + (letter || number)).count(1...)
+        let user = (Matcher(["_", "-", "."]).optional() + (letter || number)).count(1...)
         
         XCTAssertEqual(user.advancedIndex(in: "_c"), "_c".endIndex)
         
