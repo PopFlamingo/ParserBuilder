@@ -40,6 +40,7 @@ final class ParserBuilderTests: XCTestCase {
         XCTAssertEqual(Matcher("a").count(0...1).advancedIndex(in: ""), "".endIndex)
         XCTAssertEqual(Matcher("a").count(...1).advancedIndex(in: "a"), "a".endIndex)
         XCTAssertEqual(Matcher("a").count(...3).advancedIndex(in: "aaa"), "aaa".endIndex)
+        XCTAssertEqual(Matcher("a").count(..<3).advancedIndex(in: "aaa"), "aa".endIndex)
         let quadA = "aaaa"
         XCTAssertEqual(Matcher("a").count(...3).advancedIndex(in: quadA), quadA.index(before: quadA.endIndex))
         XCTAssertEqual(Matcher("a").count(0..<4).advancedIndex(in: quadA), quadA.index(before: quadA.endIndex))

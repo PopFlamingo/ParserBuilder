@@ -127,6 +127,12 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
     }
     
     @inlinable
+    public func count(_ repeatRange: PartialRangeUpTo<Int>) -> Matcher {
+        precondition(repeatRange.upperBound >= 0)
+        return Matcher(matcher: .repeated(self, nil, repeatRange.upperBound, false))
+    }
+    
+    @inlinable
     public func count(_ repeatRange: PartialRangeFrom<Int>) -> Matcher {
         precondition(repeatRange.lowerBound >= 0)
         return Matcher(matcher: .repeated(self, repeatRange.lowerBound, nil, true))
