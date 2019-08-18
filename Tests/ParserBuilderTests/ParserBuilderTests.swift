@@ -47,6 +47,7 @@ final class ParserBuilderTests: XCTestCase {
         XCTAssertEqual(Matcher("a").count(4...4).advancedIndex(in: quadA), quadA.endIndex)
         XCTAssertEqual(Matcher("a").count(4).advancedIndex(in: quadA), quadA.endIndex)
         XCTAssertNil(Matcher("a").count(3...).advancedIndex(in: "aa"))
+        XCTAssertNil(Matcher("a").atLeast(3).advancedIndex(in: "aa"))
         XCTAssertNil(Matcher("a").count(3...10).advancedIndex(in: "aa"))
         XCTAssertNil(Matcher("unmatched").count(1).advancedIndex(in: "hey"))
     }
@@ -72,6 +73,13 @@ final class ParserBuilderTests: XCTestCase {
         XCTAssertEqual(matcher.advancedIndex(in: "axyz"), orMatcher.advancedIndex(in: "axyz"))
     }
     
+    func testCharacterSet() {
+        let matcher = Matcher(charactersIn: "abc")
+        let arrayMatcher = Matcher(["a", "b", "c"])
+        XCTAssertEqual(matcher.advancedIndex(in: "bbca"), arrayMatcher.advancedIndex(in: "bbca"))
+        XCTAssertNil(matcher.advancedIndex(in: "tuv"))
+    }
+    
     func testMatcherMix() {
         let matcher: Matcher = (Matcher("abc") + Matcher("a").count(3...3)) || Matcher({ $0.isNumber }).count(1...)
         XCTAssertEqual(matcher.advancedIndex(in: "abcaaa"), "abcaaa".endIndex)
@@ -94,8 +102,8 @@ final class ParserBuilderTests: XCTestCase {
         
         let letter = Matcher("a"..."z")
         let number = Matcher("0"..."9")
-        let user = (Matcher(["_", "-", "."]).optional() + (letter || number)).count(1...)
-        let emailMatcher = user  + "@" + letter.count(2...) + "." + letter.count(2...)
+        let user = (Matcher(charactersIn: ".-_").optional() + (letter || number)).atLeast(1)
+        let emailMatcher = user  + "@" + letter.atLeast(2) + "." + letter.atLeast(2)
         let test = "ab_cd@example.org"
         XCTAssertEqual(emailMatcher.advancedIndex(in: test), test.endIndex)
     }

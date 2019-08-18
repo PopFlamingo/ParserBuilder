@@ -1,3 +1,5 @@
+import Foundation
+
 public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
     
     @inlinable
@@ -29,6 +31,14 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
     public init(_ characterRange: ClosedRange<Character>) {
         self = .init { character in
             characterRange.contains(character)
+        }
+    }
+    
+    @inlinable
+    public init(charactersIn setString: String) {
+        self = .init { character in
+            let set = CharacterSet(charactersIn: setString)
+            return character.unicodeScalars.allSatisfy(set.contains)
         }
     }
     
@@ -158,6 +168,11 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
     @inlinable
     public func optional() -> Matcher {
         return self.count(0...1)
+    }
+    
+    @inlinable
+    public func atLeast(_ minimum: Int) -> Matcher {
+        return self.count(minimum...)
     }
     
     //FIXME: This is not the same as `Matcher("")`, is this correct?
