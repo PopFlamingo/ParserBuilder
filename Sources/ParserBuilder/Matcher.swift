@@ -12,7 +12,7 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
     
     @inlinable
     public init(_ matcherArray: [Matcher]) {
-        self = matcherArray.reduce(Matcher(""), ||)
+        self = matcherArray.reduce(Matcher.never, ||)
     }
     
     @inlinable
@@ -153,6 +153,10 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
     public func optional() -> Matcher {
         return self.count(0...1)
     }
+    
+    //FIXME: This is not the same as `Matcher("")`, is this correct?
+    @usableFromInline
+    static let never: Matcher = Matcher { _ in false }
     
     @usableFromInline
     let matcher: InternalMatcher
