@@ -1,5 +1,5 @@
 import XCTest
-import ParserBuilder
+@testable import ParserBuilder
 
 final class ParserBuilderTests: XCTestCase {
     
@@ -102,8 +102,10 @@ final class ParserBuilderTests: XCTestCase {
         
         let letter = Matcher("a"..."z")
         let number = Matcher("0"..."9")
-        let user = (Matcher(charactersIn: ".-_").optional() + (letter || number)).atLeast(1)
-        let emailMatcher = user  + "@" + letter.atLeast(2) + "." + letter.atLeast(2)
+        
+        let user = (letter || number) + (Matcher(charactersIn: ".-_+").optional() + (letter || number)).atLeast(0)
+        let domain = (letter || number) + (Matcher(charactersIn: ".-").optional() + (letter || number)).atLeast(0)
+        let emailMatcher = user  + "@" + domain
         let test = "ab_cd@example.org"
         XCTAssertEqual(emailMatcher.advancedIndex(in: test), test.endIndex)
     }

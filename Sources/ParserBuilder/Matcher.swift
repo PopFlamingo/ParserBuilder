@@ -23,7 +23,7 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
     }
     
     @inlinable
-    public init(_ predicate: @escaping (Character)->Bool) {
+    init(_ predicate: @escaping (Character)->Bool) {
         self.matcher = .predicate(predicate)
     }
     
