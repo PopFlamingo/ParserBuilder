@@ -59,7 +59,7 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
     public func advancedIndex<T: StringProtocol>(in string: T) -> String.Index? {
         switch self.matcher {
         case .string(let matchedString):
-            guard matchedString != "" else {
+            guard !matchedString.isEmpty else {
                 return string.startIndex
             }
             var index = matchedString.startIndex
