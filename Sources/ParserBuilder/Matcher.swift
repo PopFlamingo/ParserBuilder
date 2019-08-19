@@ -29,9 +29,7 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
     
     @inlinable
     public init(_ characterRange: ClosedRange<Character>) {
-        self = .init { character in
-            characterRange.contains(character)
-        }
+        self.matcher = .closedRange(characterRange)
     }
     
     @inlinable
@@ -127,6 +125,13 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
                 return currentIndex
             }
             
+        case .closedRange(let range):
+            if let first = string.first, range.contains(first) {
+                return string.index(after: string.startIndex)
+            } else {
+                return nil
+            }
+            
         }
     }
     
@@ -189,5 +194,6 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
         case concatenation(Matcher, Matcher)
         case or(Matcher, Matcher)
         case repeated(Matcher, Int?, Int?, Bool)
+        case closedRange(ClosedRange<Character>)
     }
 }
