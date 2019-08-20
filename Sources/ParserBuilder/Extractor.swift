@@ -1,7 +1,9 @@
 public struct Extractor {
     @inlinable
     public init(_ string: String) {
-        self.string = string
+        var contiguousString = string
+        contiguousString.makeContiguousUTF8()
+        self.string = contiguousString
         self.currentIndex = string.startIndex
     }
     @usableFromInline
