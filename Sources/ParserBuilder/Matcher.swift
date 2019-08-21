@@ -59,15 +59,15 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
     public func convenientAdvancedIndex(in string: String) -> String.Index? {
         if string.isEmpty {
             let startIndex = string.startIndex
-            return advancedIndex(in: string, range: startIndex...startIndex)
+            return advancedIndex(in: string, range: startIndex...)
         } else {
-            return advancedIndex(in: string, range: string.startIndex...string.index(before: string.endIndex))
+            return advancedIndex(in: string, range: string.startIndex...)
         }
         
     }
     
     @inlinable
-    public func advancedIndex(in string: String, range: ClosedRange<String.Index>) -> String.Index? {
+    public func advancedIndex(in string: String, range: PartialRangeFrom<String.Index>) -> String.Index? {
         let originalString = string
         let string: Substring
         if originalString.isEmpty {
@@ -117,7 +117,7 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
             guard let firstIndex = first.advancedIndex(in: originalString, range: range), firstIndex < string.endIndex else {
                 return nil
             }
-            let secondIndex = second.advancedIndex(in: originalString, range: firstIndex...string.index(before: string.endIndex))
+            let secondIndex = second.advancedIndex(in: originalString, range: firstIndex...)
             return secondIndex
             
         case .repeated(let matcher, let min, let max, let maxIsIncluded):
@@ -133,7 +133,7 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
                 actualMax = nil
             }
             
-            while currentIndex < string.endIndex, repeatCount != actualMax, let newIndex = matcher.advancedIndex(in: originalString, range: currentIndex...originalString.index(before: originalString.endIndex)) {
+            while currentIndex < string.endIndex, repeatCount != actualMax, let newIndex = matcher.advancedIndex(in: originalString, range: currentIndex...) {
                 currentIndex = newIndex
                 repeatCount += 1
             }

@@ -15,7 +15,7 @@ public struct Extractor {
     mutating public func matches(for matcher: Matcher) -> [Substring] {
         var matches = [Substring]()
         while currentIndex < string.endIndex {
-            if let nextIndex = matcher.advancedIndex(in: string, range: currentIndex...string.index(before: string.endIndex)) {
+            if let nextIndex = matcher.advancedIndex(in: string, range: currentIndex...) {
                 matches.append(string[currentIndex..<nextIndex])
                 currentIndex = nextIndex
             } else {
@@ -29,7 +29,7 @@ public struct Extractor {
         guard currentIndex < string.endIndex else {
             return nil
         }
-        if let endIndex = matcher.advancedIndex(in: string, range: currentIndex...string.index(before: string.endIndex)) {
+        if let endIndex = matcher.advancedIndex(in: string, range: currentIndex...) {
             return string[currentIndex..<endIndex]
         } else {
             return nil
@@ -42,7 +42,7 @@ public struct Extractor {
         guard currentIndex < string.endIndex else {
             return nil
         }
-        if let endIndex = matcher.advancedIndex(in: string, range: currentIndex...string.index(before: string.endIndex)) {
+        if let endIndex = matcher.advancedIndex(in: string, range: currentIndex...) {
             defer {
                 currentIndex = endIndex
             }
