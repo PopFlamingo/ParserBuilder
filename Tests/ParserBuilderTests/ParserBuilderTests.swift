@@ -24,10 +24,12 @@ final class ParserBuilderTests: XCTestCase {
         let optionalAndSeq = Matcher("@").optional() + "heyyou"
         let seqAndOptional = "heyyou" + Matcher("@").optional()
         let optionalOr = Matcher("foo").optional() || Matcher("bar").optional()
+        let optionalAnd = Matcher("foo").optional() && Matcher("bar").optional()
         XCTAssertEqual(optionalAndSeq.advancedIndex(in: baz), baz.endIndex)
         XCTAssertEqual(optionalAndSeq.advancedIndex(in: bar), bar.endIndex)
         XCTAssertEqual(seqAndOptional.advancedIndex(in: bar), bar.endIndex)
         XCTAssertEqual(optionalOr.advancedIndex(in: bar), bar.startIndex)
+        XCTAssertEqual(optionalAnd.advancedIndex(in: bar), bar.startIndex)
     }
     
     func testMatcherEmpty() {
