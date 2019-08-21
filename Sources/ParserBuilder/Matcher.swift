@@ -133,7 +133,7 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
                 actualMax = nil
             }
             
-            while currentIndex < string.endIndex, repeatCount != actualMax, let newIndex = matcher.advancedIndex(in: originalString, range: currentIndex...string.index(before: string.endIndex)) {
+            while currentIndex < string.endIndex, repeatCount != actualMax, let newIndex = matcher.advancedIndex(in: originalString, range: currentIndex...originalString.index(before: originalString.endIndex)) {
                 currentIndex = newIndex
                 repeatCount += 1
             }
