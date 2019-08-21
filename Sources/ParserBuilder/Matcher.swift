@@ -57,74 +57,58 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
     
     @inlinable
     public func convenientAdvancedIndex(in string: String) -> String.Index? {
-        if string.isEmpty {
-            let startIndex = string.startIndex
-            return advancedIndex(in: string, range: startIndex...)
-        } else {
-            return advancedIndex(in: string, range: string.startIndex...)
-        }
+        return advancedIndex(in: string, range: string.startIndex..<string.endIndex)
         
     }
     
     @inlinable
-    public func advancedIndex(in string: String, range: PartialRangeFrom<String.Index>) -> String.Index? {
-        let originalString = string
-        let string: Substring
-        if originalString.isEmpty {
-            string = Substring(originalString)
-        } else {
-            string = originalString[range]
-        }
-        
+    public func advancedIndex(in string: String, range: Range<String.Index>) -> String.Index? {
         switch self.matcher {
         case .string(let matchedString):
             guard !matchedString.isEmpty else {
-                return string.startIndex
+                return range.lowerBound
             }
-            var index = matchedString.startIndex
-            let prefixed = string.prefix { character in
-                guard index < matchedString.endIndex else {
-                    return false
-                }
-                if character == matchedString[index] {
-                    defer {
-                        index = matchedString.index(after: index)
-                    }
-                    return true
+            var matchedIndex = matchedString.startIndex
+            var index = range.lowerBound
+            
+            while matchedIndex < matchedString.endIndex {
+                if matchedString[matchedIndex] == string[index] {
+                    matchedIndex = matchedString.index(after: matchedIndex)
+                    index = string.index(after: index)
                 } else {
-                    return false
+                    return nil
                 }
             }
-            return index != matchedString.endIndex ? nil : prefixed.endIndex
+            return index
             
         case .predicate(let predicate):
-            if let firstCharacter = string.first, predicate(firstCharacter) {
-                return string.index(after: string.startIndex)
+            if !string.isEmpty, case let firstCharacter = string[range.lowerBound], predicate(firstCharacter) {
+                return string.index(after: range.lowerBound)
             } else {
                 return nil
             }
             
         case .or(let lhs, let rhs):
-            if let first = lhs.advancedIndex(in: originalString, range: range) {
+            if let first = lhs.advancedIndex(in: string, range: range) {
                 return first
-            } else if let second = rhs.advancedIndex(in: originalString, range: range) {
+            } else if let second = rhs.advancedIndex(in: string, range: range) {
                 return second
             } else {
                 return nil
             }
             
         case .concatenation(let first, let second):
-            guard let firstIndex = first.advancedIndex(in: originalString, range: range), firstIndex < string.endIndex else {
+            guard let firstIndex = first.advancedIndex(in: string, range: range), firstIndex < range.upperBound else {
                 return nil
             }
-            let secondIndex = second.advancedIndex(in: originalString, range: firstIndex...)
+            let secondIndex = second.advancedIndex(in: string, range: firstIndex..<range.upperBound)
             return secondIndex
             
         case .repeated(let matcher, let min, let max, let maxIsIncluded):
             if let max = max, max == 0 {
                 return nil
             }
-            var currentIndex = string.startIndex
+            var currentIndex = range.lowerBound
             var repeatCount = 0
             let actualMax: Int?
             if let max = max {
@@ -133,7 +117,7 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
                 actualMax = nil
             }
             
-            while currentIndex < string.endIndex, repeatCount != actualMax, let newIndex = matcher.advancedIndex(in: originalString, range: currentIndex...) {
+            while currentIndex < range.upperBound, repeatCount != actualMax, let newIndex = matcher.advancedIndex(in: string, range: currentIndex..<range.upperBound) {
                 currentIndex = newIndex
                 repeatCount += 1
             }
@@ -144,9 +128,9 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
                 return currentIndex
             }
             
-        case .closedRange(let range):
-            if let first = string.first, range.contains(first) {
-                return string.index(after: string.startIndex)
+        case .closedRange(let charRange):
+            if !string.isEmpty, case let first = string[range.lowerBound], charRange.contains(first) {
+                return string.index(after: range.lowerBound)
             } else {
                 return nil
             }
