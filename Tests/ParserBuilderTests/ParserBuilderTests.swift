@@ -22,8 +22,10 @@ final class ParserBuilderTests: XCTestCase {
         let bar = "heyyou"
         let baz = "@" + bar
         let optionalAndSeq = Matcher("@").optional() + "heyyou"
+        // let seqAndOptional = "heyyou" + Matcher("@").optional()
         XCTAssertEqual(optionalAndSeq.advancedIndex(in: baz), baz.endIndex)
         XCTAssertEqual(optionalAndSeq.advancedIndex(in: bar), bar.endIndex)
+        // XCTAssertEqual(seqAndOptional.advancedIndex(in: bar), bar.endIndex)
     }
     
     func testMatcherEmpty() {

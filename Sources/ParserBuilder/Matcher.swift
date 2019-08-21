@@ -56,7 +56,26 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
     }
     
     @inlinable
-    public func advancedIndex<T: StringProtocol>(in string: T) -> String.Index? {
+    public func advancedIndex(in string: String) -> String.Index? {
+        if string.isEmpty {
+            let startIndex = string.startIndex
+            return advancedIndex(in: string, range: startIndex...startIndex)
+        } else {
+            return advancedIndex(in: string, range: string.startIndex...string.index(before: string.endIndex))
+        }
+        
+    }
+    
+    @inlinable
+    public func advancedIndex(in string: String, range: ClosedRange<String.Index>) -> String.Index? {
+        let originalString = string
+        let string: Substring
+        if originalString.isEmpty {
+            string = Substring(originalString)
+        } else {
+            string = originalString[range]
+        }
+        
         switch self.matcher {
         case .string(let matchedString):
             guard !matchedString.isEmpty else {
@@ -86,19 +105,19 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
             }
             
         case .or(let lhs, let rhs):
-            if let first = lhs.advancedIndex(in: string) {
+            if let first = lhs.advancedIndex(in: originalString, range: range) {
                 return first
-            } else if let second = rhs.advancedIndex(in: string) {
+            } else if let second = rhs.advancedIndex(in: originalString, range: range) {
                 return second
             } else {
                 return nil
             }
             
         case .concatenation(let first, let second):
-            guard let firstIndex = first.advancedIndex(in: string), firstIndex < string.endIndex else {
+            guard let firstIndex = first.advancedIndex(in: originalString, range: range), firstIndex < string.endIndex else {
                 return nil
             }
-            let secondIndex = second.advancedIndex(in: string[firstIndex...])
+            let secondIndex = second.advancedIndex(in: originalString, range: firstIndex...string.index(before: string.endIndex))
             return secondIndex
             
         case .repeated(let matcher, let min, let max, let maxIsIncluded):
@@ -114,7 +133,7 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
                 actualMax = nil
             }
             
-            while currentIndex < string.endIndex, repeatCount != actualMax, let newIndex = matcher.advancedIndex(in: string[currentIndex...]) {
+            while currentIndex < string.endIndex, repeatCount != actualMax, let newIndex = matcher.advancedIndex(in: originalString, range: currentIndex...string.index(before: string.endIndex)) {
                 currentIndex = newIndex
                 repeatCount += 1
             }
