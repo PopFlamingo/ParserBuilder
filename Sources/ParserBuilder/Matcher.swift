@@ -61,6 +61,11 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
     }
     
     @inlinable
+    public static func &&(lhs: Matcher, rhs: Matcher) -> Matcher {
+        return Matcher(matcher: .and(lhs, rhs))
+    }
+    
+    @inlinable
     public func advancedIndex(in string: String) -> String.Index? {
         return advancedIndex(in: string, range: string.startIndex..<string.endIndex)
         
@@ -152,6 +157,13 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
             } else {
                 return range.lowerBound
             }
+            
+        case .and(let lhs, let rhs):
+            if let lhsIndex = lhs.advancedIndex(in: string, range: range), let rhsIndex = rhs.advancedIndex(in: string, range: range) {
+                return max(lhsIndex, rhsIndex)
+            } else {
+                return nil
+            }
         }
     }
     
@@ -216,5 +228,6 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
         case repeated(Matcher, Int?, Int?, Bool)
         case closedRange(ClosedRange<Character>)
         case not(Matcher)
+        case and(Matcher, Matcher)
     }
 }

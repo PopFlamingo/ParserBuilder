@@ -126,6 +126,23 @@ final class ParserBuilderTests: XCTestCase {
         XCTAssertNil(notA.advancedIndex(in: "abc"))
         XCTAssertEqual(notA.advancedIndex(in: "b"), "b".startIndex)
     }
+    
+    func testAnd() {
+        let abc = Matcher("abc")
+        let empty = Matcher("")
+        XCTAssertEqual((abc && empty).advancedIndex(in: "abc"), "abc".endIndex)
+        XCTAssertNil((Matcher("a") && Matcher("b")).advancedIndex(in: "a"))
+        
+        // "Manual" lazy matcher
+        let foo = "AAAAAAAB"
+        let otherMatched = Matcher("AB")
+        let manualLazy = (Matcher("A") && !otherMatched).count(1...)
+        if let endIndex = manualLazy.advancedIndex(in: foo) {
+            XCTAssertEqual(foo[..<endIndex], "AAAAAA") // Doesn't contain the last AB
+        } else {
+            XCTFail("Shouldn't be nil")
+        }
+    }
         
     static var allTests = [
         ("testMatcherString", testMatcherString),
@@ -139,6 +156,7 @@ final class ParserBuilderTests: XCTestCase {
         ("testMatcherArray", testMatcherArray),
         ("testMatcherMix", testMatcherMix),
         ("testConcatOpt", testConcatOpt),
-        ("testNot", testNot)
+        ("testNot", testNot),
+        ("testAnd", testAnd)
     ]
 }
