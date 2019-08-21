@@ -56,7 +56,7 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
     }
     
     @inlinable
-    public func convenientAdvancedIndex(in string: String) -> String.Index? {
+    public func advancedIndex(in string: String) -> String.Index? {
         return advancedIndex(in: string, range: string.startIndex..<string.endIndex)
         
     }
