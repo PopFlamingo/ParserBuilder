@@ -68,6 +68,9 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
             guard !matchedString.isEmpty else {
                 return range.lowerBound
             }
+            guard range.lowerBound < string.endIndex else {
+                return nil
+            }
             var matchedIndex = matchedString.startIndex
             var index = range.lowerBound
             
@@ -82,6 +85,9 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
             return index
             
         case .predicate(let predicate):
+            guard range.lowerBound < string.endIndex else {
+                return nil
+            }
             if !string.isEmpty, case let firstCharacter = string[range.lowerBound], predicate(firstCharacter) {
                 return string.index(after: range.lowerBound)
             } else {
@@ -98,7 +104,7 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
             }
             
         case .concatenation(let first, let second):
-            guard let firstIndex = first.advancedIndex(in: string, range: range), firstIndex < range.upperBound else {
+            guard let firstIndex = first.advancedIndex(in: string, range: range) else {
                 return nil
             }
             let secondIndex = second.advancedIndex(in: string, range: firstIndex..<range.upperBound)
