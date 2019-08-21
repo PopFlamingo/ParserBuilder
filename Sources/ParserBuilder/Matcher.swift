@@ -46,6 +46,11 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
     }
     
     @inlinable
+    public static prefix func !(matcher: Matcher) -> Matcher {
+        return Matcher(matcher: .not(matcher))
+    }
+    
+    @inlinable
     public static func +(lhs: Matcher, rhs: Matcher) -> Matcher {
         return Matcher(matcher: .concatenation(lhs, rhs))
     }
@@ -141,6 +146,12 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
                 return nil
             }
             
+        case .not(let matcher):
+            if matcher.advancedIndex(in: string, range: range) != nil {
+                return nil
+            } else {
+                return range.lowerBound
+            }
         }
     }
     
@@ -204,5 +215,6 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
         case or(Matcher, Matcher)
         case repeated(Matcher, Int?, Int?, Bool)
         case closedRange(ClosedRange<Character>)
+        case not(Matcher)
     }
 }

@@ -120,6 +120,12 @@ final class ParserBuilderTests: XCTestCase {
         XCTAssertEqual(matcher.advancedIndex(in: foo), foo.endIndex)
         XCTAssertEqual(matcher.advancedIndex(in: bar), bar.endIndex)
     }
+    
+    func testNot() {
+        let notA = !Matcher("abc")
+        XCTAssertNil(notA.advancedIndex(in: "abc"))
+        XCTAssertEqual(notA.advancedIndex(in: "b"), "b".startIndex)
+    }
         
     static var allTests = [
         ("testMatcherString", testMatcherString),
@@ -132,6 +138,7 @@ final class ParserBuilderTests: XCTestCase {
         ("testMatcherPredicate", testMatcherPredicate),
         ("testMatcherArray", testMatcherArray),
         ("testMatcherMix", testMatcherMix),
-        ("testConcatOpt", testConcatOpt)
+        ("testConcatOpt", testConcatOpt),
+        ("testNot", testNot)
     ]
 }
