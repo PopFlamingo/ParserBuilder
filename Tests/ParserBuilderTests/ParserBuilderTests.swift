@@ -145,6 +145,11 @@ final class ParserBuilderTests: XCTestCase {
             XCTFail("Shouldn't be nil")
         }
     }
+    
+    func testMatcherLongerThanString() {
+        let matcher: Matcher = "abcdef"
+        XCTAssertNil(matcher.advancedIndex(in: "a"))
+    }
         
     static var allTests = [
         ("testMatcherString", testMatcherString),
@@ -159,6 +164,7 @@ final class ParserBuilderTests: XCTestCase {
         ("testMatcherMix", testMatcherMix),
         ("testConcatOpt", testConcatOpt),
         ("testNot", testNot),
-        ("testAnd", testAnd)
+        ("testAnd", testAnd),
+        ("testMatcherLongerThanString", testMatcherLongerThanString)
     ]
 }

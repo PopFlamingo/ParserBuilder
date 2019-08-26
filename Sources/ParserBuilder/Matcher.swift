@@ -78,13 +78,13 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
             guard !matchedString.isEmpty else {
                 return range.lowerBound
             }
-            guard range.lowerBound < string.endIndex else {
-                return nil
-            }
             var matchedIndex = matchedString.startIndex
             var index = range.lowerBound
             
             while matchedIndex < matchedString.endIndex {
+                guard index < string.endIndex else {
+                    return nil
+                }
                 if matchedString[matchedIndex] == string[index] {
                     matchedIndex = matchedString.index(after: matchedIndex)
                     index = string.index(after: index)
