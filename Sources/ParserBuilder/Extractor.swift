@@ -4,35 +4,40 @@ public struct Extractor {
         var contiguousString = string
         contiguousString.makeContiguousUTF8()
         self.string = contiguousString
-        self.currentIndex = string.startIndex
+        self._currentIndex = string.startIndex
     }
+    public let string: String
+    
     @usableFromInline
-    let string: String
-    @usableFromInline
-    var currentIndex: String.Index
+    var _currentIndex: String.Index
+    
+    @inlinable
+    public var currentIndex: String.Index {
+        _currentIndex
+    }
     
     @inlinable
     mutating public func matches(for matcher: Matcher) -> [Substring] {
         var matches = [Substring]()
         let endIndex = string.endIndex
-        while currentIndex < string.endIndex {
-            if let nextIndex = matcher.advancedIndex(in: string, range: currentIndex..<endIndex) {
-                matches.append(string[currentIndex..<nextIndex])
-                currentIndex = nextIndex
+        while _currentIndex < string.endIndex {
+            if let nextIndex = matcher.advancedIndex(in: string, range: _currentIndex..<endIndex) {
+                matches.append(string[_currentIndex..<nextIndex])
+                _currentIndex = nextIndex
             } else {
-                currentIndex = string.index(after: currentIndex)
+                _currentIndex = string.index(after: _currentIndex)
             }
         }
         return matches
     }
     @inlinable
     public mutating func peekCurrent(with matcher: Matcher) -> Substring? {
-        guard currentIndex < string.endIndex else {
+        guard _currentIndex < string.endIndex else {
             return nil
         }
         let endIndex = string.endIndex
-        if let endIndex = matcher.advancedIndex(in: string, range: currentIndex..<endIndex) {
-            return string[currentIndex..<endIndex]
+        if let endIndex = matcher.advancedIndex(in: string, range: _currentIndex..<endIndex) {
+            return string[_currentIndex..<endIndex]
         } else {
             return nil
         }
@@ -41,15 +46,15 @@ public struct Extractor {
     @discardableResult
     @inlinable
     public mutating func popCurrent(with matcher: Matcher) -> Substring? {
-        guard currentIndex < string.endIndex else {
+        guard _currentIndex < string.endIndex else {
             return nil
         }
         let endIndex = string.endIndex
-        if let endIndex = matcher.advancedIndex(in: string, range: currentIndex..<endIndex) {
+        if let endIndex = matcher.advancedIndex(in: string, range: _currentIndex..<endIndex) {
             defer {
-                currentIndex = endIndex
+                _currentIndex = endIndex
             }
-            return string[currentIndex..<endIndex]
+            return string[_currentIndex..<endIndex]
         } else {
             return nil
         }
