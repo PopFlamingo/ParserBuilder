@@ -40,6 +40,8 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
         }
     }
     
+    public static let anyCharacter: Matcher = .init(matcher: .anyCharacter)
+    
     @usableFromInline
     init(matcher: InternalMatcher) {
         self.matcher = matcher
@@ -164,6 +166,13 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
             } else {
                 return nil
             }
+            
+        case .anyCharacter:
+            if range.lowerBound < string.endIndex {
+                return string.index(after: range.lowerBound)
+            } else {
+                return nil
+            }
         }
     }
     
@@ -229,5 +238,6 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
         case closedRange(ClosedRange<Character>)
         case not(Matcher)
         case and(Matcher, Matcher)
+        case anyCharacter
     }
 }

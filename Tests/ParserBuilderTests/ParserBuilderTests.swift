@@ -150,6 +150,15 @@ final class ParserBuilderTests: XCTestCase {
         let matcher: Matcher = "abcdef"
         XCTAssertNil(matcher.advancedIndex(in: "a"))
     }
+    
+    func testMatcherAnyCharacter() {
+        let any = Matcher.anyCharacter
+        XCTAssertNil(any.advancedIndex(in: ""))
+        XCTAssertEqual(any.advancedIndex(in: "a"), "a".endIndex)
+        XCTAssertEqual(any.advancedIndex(in: "⛵️"), "⛵️".endIndex)
+        let twoCharacters = "🍾🌃"
+        XCTAssertEqual(any.advancedIndex(in: twoCharacters), twoCharacters.index(after: twoCharacters.startIndex))
+    }
         
     static var allTests = [
         ("testMatcherString", testMatcherString),
@@ -165,6 +174,7 @@ final class ParserBuilderTests: XCTestCase {
         ("testConcatOpt", testConcatOpt),
         ("testNot", testNot),
         ("testAnd", testAnd),
-        ("testMatcherLongerThanString", testMatcherLongerThanString)
+        ("testMatcherLongerThanString", testMatcherLongerThanString),
+        ("testMatcherAnyCharacter", testMatcherAnyCharacter)
     ]
 }
