@@ -79,13 +79,6 @@ final class ParserBuilderTests: XCTestCase {
         XCTAssertEqual(matcher.advancedIndex(in: "axyz"), orMatcher.advancedIndex(in: "axyz"))
     }
     
-    func testCharacterSet() {
-        let matcher = Matcher(charactersIn: "abc")
-        let arrayMatcher = Matcher(["a", "b", "c"])
-        XCTAssertEqual(matcher.advancedIndex(in: "bbca"), arrayMatcher.advancedIndex(in: "bbca"))
-        XCTAssertNil(matcher.advancedIndex(in: "tuv"))
-    }
-    
     func testMatcherMix() {
         let matcher: Matcher = (Matcher("abc") + Matcher("a").count(3...3)) || Matcher({ $0.isNumber }).count(1...)
         XCTAssertEqual(matcher.advancedIndex(in: "abcaaa"), "abcaaa".endIndex)
@@ -108,8 +101,8 @@ final class ParserBuilderTests: XCTestCase {
         let letter = Matcher("a"..."z")
         let number = Matcher("0"..."9")
         
-        let user = (letter || number) + (Matcher(charactersIn: ".-_+").optional() + (letter || number)).atLeast(0)
-        let domain = (letter || number) + (Matcher(charactersIn: ".-").optional() + (letter || number)).atLeast(0)
+        let user = (letter || number) + (Matcher([".","-","_","+"]).optional() + (letter || number)).atLeast(0)
+        let domain = (letter || number) + (Matcher([".","-"]).optional() + (letter || number)).atLeast(0)
         let emailMatcher = user  + "@" + domain
         let test = "ab_cd@example.org"
         XCTAssertEqual(emailMatcher.advancedIndex(in: test), test.endIndex)

@@ -1,5 +1,3 @@
-import Foundation
-
 public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
     
     @inlinable
@@ -30,14 +28,6 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
     @inlinable
     public init(_ characterRange: ClosedRange<Character>) {
         self.matcher = .closedRange(characterRange)
-    }
-    
-    @inlinable
-    public init(charactersIn setString: String) {
-        self = .init { character in
-            let set = CharacterSet(charactersIn: setString)
-            return character.unicodeScalars.allSatisfy(set.contains)
-        }
     }
     
     public static let anyCharacter: Matcher = .init(matcher: .anyCharacter)
