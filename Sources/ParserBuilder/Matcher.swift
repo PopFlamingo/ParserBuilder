@@ -168,7 +168,7 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
             }
             
         case .anyCharacter:
-            if range.lowerBound < string.endIndex {
+            if range.lowerBound != range.upperBound && !string.isEmpty {
                 return string.index(after: range.lowerBound)
             } else {
                 return nil
