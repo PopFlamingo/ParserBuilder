@@ -131,7 +131,7 @@ final class ParserBuilderTests: XCTestCase {
     }
     
     func testRaw() {
-        print((Matcher("abcd\r\n") && Matcher.any()).toOptimizedASCII())
+        print((Matcher("abcd\r\n") && Matcher.any()).computeOptimized())
         /*
         var a = "!abcdkljaezlkjza"
         let result = a.withUTF8 { string in

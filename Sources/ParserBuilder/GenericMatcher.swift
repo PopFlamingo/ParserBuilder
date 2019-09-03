@@ -203,6 +203,10 @@ public struct GenericMatcher<C>: ExpressibleByArrayLiteral where C: Collection, 
     @usableFromInline
     let matcher: InternalMatcher
     
+    
+    @usableFromInline
+    var optimized: Box<GenericMatcher<[UInt8]>>?
+    
     @usableFromInline
     indirect enum InternalMatcher {
         case collection(C)
@@ -226,10 +230,28 @@ extension String {
     }
 }
 
+
+@usableFromInline
+class Box<T> {
+    @inlinable
+    init(_ value: T) {
+        self.value = value
+    }
+    @usableFromInline
+    var value: T
+}
+
 extension GenericMatcher where C == String {
     
     @inlinable
-    func toOptimizedASCII() -> GenericMatcher<[UInt8]>? {
+    public mutating func optimize() {
+        if let optimized = self.computeOptimized() {
+            self.optimized = Box(optimized)
+        }
+    }
+    
+    @inlinable
+    func computeOptimized() -> GenericMatcher<[UInt8]>? {
         switch self.matcher {
         
         case .collection(let string):
@@ -240,21 +262,21 @@ extension GenericMatcher where C == String {
             }
         
         case .concatenation(let lhs, let rhs):
-            if let oLHS = lhs.toOptimizedASCII(), let oRHS = rhs.toOptimizedASCII() {
+            if let oLHS = lhs.computeOptimized(), let oRHS = rhs.computeOptimized() {
                 return oLHS + oRHS
             } else {
                 return nil
             }
             
         case .or(let lhs, let rhs):
-            if let oLHS = lhs.toOptimizedASCII(), let oRHS = rhs.toOptimizedASCII() {
+            if let oLHS = lhs.computeOptimized(), let oRHS = rhs.computeOptimized() {
                 return oLHS || oRHS
             } else {
                 return nil
             }
             
         case .repeated(let matcher, let min, let max, let maxIsIncluded):
-            if let oMatcher = matcher.toOptimizedASCII() {
+            if let oMatcher = matcher.computeOptimized() {
                 return GenericMatcher<[UInt8]>(matcher: .repeated(oMatcher, min, max, maxIsIncluded))
             } else {
                 return nil
@@ -268,14 +290,14 @@ extension GenericMatcher where C == String {
             }
             
         case .not(let inverted):
-            if let optimized = inverted.toOptimizedASCII() {
+            if let optimized = inverted.computeOptimized() {
                 return !optimized
             } else {
                 return nil
             }
             
         case .and(let lhs, let rhs):
-            if let oLHS = lhs.toOptimizedASCII(), let oRHS = rhs.toOptimizedASCII() {
+            if let oLHS = lhs.computeOptimized(), let oRHS = rhs.computeOptimized() {
                 return oLHS && oRHS
             } else {
                 return nil
