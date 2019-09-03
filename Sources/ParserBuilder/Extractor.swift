@@ -85,6 +85,7 @@ public struct Extractor {
             if let endIndex = matcher.advancedIndex(in: _string, range: _currentIndex..<endIndex) {
                 defer {
                     _currentIndex = endIndex
+                    utf8Index = string.utf8.distance(from: string.startIndex, to: _currentIndex)
                 }
                 
                 return _string[_currentIndex..<endIndex]

@@ -131,13 +131,12 @@ final class ParserBuilderTests: XCTestCase {
     }
     
     func testRaw() {
-        var extractor = Extractor("heywow")
-        var matcher = Matcher("wow")
-        var matcher2 = Matcher("hey")
-        matcher.optimize()
+        var extractor = Extractor("heywow🚖")
+        let matcher = Matcher("hey")
+        let matcher2 = Matcher("wow")
         matcher2.optimize()
-        print(extractor.popCurrent(with: matcher))
-        print(extractor.popCurrent(with: matcher2))
+        XCTAssertEqual(extractor.popCurrent(with: matcher), "hey")
+        XCTAssertEqual(extractor.popCurrent(with: matcher2), "wow")
     }
         
     static var allTests = [
