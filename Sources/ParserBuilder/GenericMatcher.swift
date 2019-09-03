@@ -11,8 +11,8 @@ public struct GenericMatcher<C>: ExpressibleByArrayLiteral where C: Collection, 
     }
     
     @inlinable
-    public init(_ matchedString: C) {
-        self.matcher = .collection(matchedString)
+    public init(_ exactPattern: C) {
+        self.matcher = .collection(exactPattern)
     }
     
     @inlinable
