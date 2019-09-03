@@ -58,41 +58,43 @@ public struct Extractor {
         guard _currentIndex < _string.endIndex else {
             return nil
         }
-        
-        if let optimized = matcher.optimized.value {
-            let endIndex = _string.withUTF8 { buffer -> Int? in
-                let endIndex = buffer.endIndex
-                if let endIndex = optimized.advancedIndex(in: buffer, range: utf8Index..<endIndex) {
-                    return endIndex
-                } else {
-                    return nil
-                }
+        let endIndex = _string.endIndex
+        if let endIndex = matcher.advancedIndex(in: _string, range: _currentIndex..<endIndex) {
+            defer {
+                _currentIndex = endIndex
+                utf8Index = string.utf8.distance(from: string.startIndex, to: _currentIndex)
             }
             
-            if let endIndex = endIndex {
-                let converted = string.utf8.index(string.utf8.startIndex, offsetBy: endIndex)
-                defer {
-                    self.utf8Index = endIndex
-                    self._currentIndex = converted
-                }
-                return string[currentIndex..<converted]
-            } else {
-                return nil
-            }
-            
+            return _string[_currentIndex..<endIndex]
         } else {
-            let endIndex = _string.endIndex
-            if let endIndex = matcher.advancedIndex(in: _string, range: _currentIndex..<endIndex) {
-                defer {
-                    _currentIndex = endIndex
-                    utf8Index = string.utf8.distance(from: string.startIndex, to: _currentIndex)
-                }
-                
-                return _string[_currentIndex..<endIndex]
+            return nil
+        }
+    }
+    
+    
+    @discardableResult
+    @inlinable
+    public mutating func popCurrent(with matcher: GenericMatcher<[UInt8]>) -> Substring? {
+        guard _currentIndex < _string.endIndex else {
+            return nil
+        }
+        let endIndex = _string.withUTF8 { buffer -> Int? in
+            let endIndex = buffer.endIndex
+            if let endIndex = matcher.advancedIndex(in: buffer, range: utf8Index..<endIndex) {
+                return endIndex
             } else {
                 return nil
             }
         }
-        
+        if let endIndex = endIndex {
+            let converted = string.utf8.index(string.utf8.startIndex, offsetBy: endIndex)
+            defer {
+                self.utf8Index = endIndex
+                self._currentIndex = converted
+            }
+            return string[currentIndex..<converted]
+        } else {
+            return nil
+        }
     }
 }

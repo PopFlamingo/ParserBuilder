@@ -205,9 +205,6 @@ public struct GenericMatcher<C>: ExpressibleByArrayLiteral where C: Collection, 
     
     
     @usableFromInline
-    var optimized: Box<GenericMatcher<[UInt8]>?> = Box(nil)
-    
-    @usableFromInline
     indirect enum InternalMatcher {
         case collection(C)
         case concatenation(GenericMatcher, GenericMatcher)
@@ -243,17 +240,8 @@ class Box<T> {
 
 extension GenericMatcher where C == String {
     
-    @discardableResult
     @inlinable
-    public func optimize() -> GenericMatcher {
-        if let optimized = self.computeOptimized() {
-            self.optimized.value = optimized
-        }
-        return self
-    }
-    
-    @inlinable
-    func computeOptimized() -> GenericMatcher<[UInt8]>? {
+    func optimized() -> GenericMatcher<[UInt8]>? {
         switch self.matcher {
         
         case .collection(let string):
@@ -264,21 +252,21 @@ extension GenericMatcher where C == String {
             }
         
         case .concatenation(let lhs, let rhs):
-            if let oLHS = lhs.computeOptimized(), let oRHS = rhs.computeOptimized() {
+            if let oLHS = lhs.optimized(), let oRHS = rhs.optimized() {
                 return oLHS + oRHS
             } else {
                 return nil
             }
             
         case .or(let lhs, let rhs):
-            if let oLHS = lhs.computeOptimized(), let oRHS = rhs.computeOptimized() {
+            if let oLHS = lhs.optimized(), let oRHS = rhs.optimized() {
                 return oLHS || oRHS
             } else {
                 return nil
             }
             
         case .repeated(let matcher, let min, let max, let maxIsIncluded):
-            if let oMatcher = matcher.computeOptimized() {
+            if let oMatcher = matcher.optimized() {
                 return GenericMatcher<[UInt8]>(matcher: .repeated(oMatcher, min, max, maxIsIncluded))
             } else {
                 return nil
@@ -292,14 +280,14 @@ extension GenericMatcher where C == String {
             }
             
         case .not(let inverted):
-            if let optimized = inverted.computeOptimized() {
+            if let optimized = inverted.optimized() {
                 return !optimized
             } else {
                 return nil
             }
             
         case .and(let lhs, let rhs):
-            if let oLHS = lhs.computeOptimized(), let oRHS = rhs.computeOptimized() {
+            if let oLHS = lhs.optimized(), let oRHS = rhs.optimized() {
                 return oLHS && oRHS
             } else {
                 return nil
