@@ -59,8 +59,7 @@ public struct Extractor {
             return nil
         }
         
-        if let optimizedBox = matcher.optimized {
-            let optimized = optimizedBox.value
+        if let optimized = matcher.optimized.value {
             let endIndex = _string.withUTF8 { buffer -> Int? in
                 let endIndex = buffer.endIndex
                 if let endIndex = optimized.advancedIndex(in: buffer, range: utf8Index..<endIndex) {

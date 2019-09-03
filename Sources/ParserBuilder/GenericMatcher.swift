@@ -205,7 +205,7 @@ public struct GenericMatcher<C>: ExpressibleByArrayLiteral where C: Collection, 
     
     
     @usableFromInline
-    var optimized: Box<GenericMatcher<[UInt8]>>?
+    var optimized: Box<GenericMatcher<[UInt8]>?> = Box(nil)
     
     @usableFromInline
     indirect enum InternalMatcher {
@@ -244,9 +244,9 @@ class Box<T> {
 extension GenericMatcher where C == String {
     
     @inlinable
-    public mutating func optimize() {
+    public func optimize() {
         if let optimized = self.computeOptimized() {
-            self.optimized = Box(optimized)
+            self.optimized.value = optimized
         }
     }
     
