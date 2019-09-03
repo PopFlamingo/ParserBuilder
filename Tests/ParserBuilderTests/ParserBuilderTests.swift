@@ -130,7 +130,7 @@ final class ParserBuilderTests: XCTestCase {
         XCTAssertEqual(any.advancedIndex(in: twoCharacters), twoCharacters.index(after: twoCharacters.startIndex))
     }
     
-    func testRaw() {
+    func testOptimized() {
         var extractor = Extractor("heywow🚖")
         let matcher = Matcher("hey")
         let matcher2 = Matcher("wow")
@@ -153,6 +153,7 @@ final class ParserBuilderTests: XCTestCase {
         ("testNot", testNot),
         ("testAnd", testAnd),
         ("testMatcherLongerThanString", testMatcherLongerThanString),
-        ("testMatcherAnyCharacter", testMatcherAnyCharacter)
+        ("testMatcherAnyCharacter", testMatcherAnyCharacter),
+        ("testOptimized", testOptimized)
     ]
 }
