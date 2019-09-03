@@ -3,13 +3,22 @@ public struct Extractor {
     public init(_ string: String) {
         var contiguousString = string
         contiguousString.makeContiguousUTF8()
-        self.string = contiguousString
+        self._string = contiguousString
         self._currentIndex = string.startIndex
+        self.utf8Index = 0
     }
-    public let string: String
+    
+    public var string: String {
+        _string
+    }
+    
+    public var _string: String
     
     @usableFromInline
     var _currentIndex: String.Index
+    
+    @usableFromInline
+    var utf8Index: Int
     
     @inlinable
     public var currentIndex: String.Index {
@@ -32,12 +41,12 @@ public struct Extractor {
     }
     @inlinable
     public mutating func peekCurrent(with matcher: Matcher) -> Substring? {
-        guard _currentIndex < string.endIndex else {
+        guard _currentIndex < _string.endIndex else {
             return nil
         }
-        let endIndex = string.endIndex
-        if let endIndex = matcher.advancedIndex(in: string, range: _currentIndex..<endIndex) {
-            return string[_currentIndex..<endIndex]
+        let endIndex = _string.endIndex
+        if let endIndex = matcher.advancedIndex(in: _string, range: _currentIndex..<endIndex) {
+            return _string[_currentIndex..<endIndex]
         } else {
             return nil
         }
@@ -46,17 +55,44 @@ public struct Extractor {
     @discardableResult
     @inlinable
     public mutating func popCurrent(with matcher: Matcher) -> Substring? {
-        guard _currentIndex < string.endIndex else {
+        guard _currentIndex < _string.endIndex else {
             return nil
         }
-        let endIndex = string.endIndex
-        if let endIndex = matcher.advancedIndex(in: string, range: _currentIndex..<endIndex) {
-            defer {
-                _currentIndex = endIndex
+        
+        if let optimizedBox = matcher.optimized {
+            let optimized = optimizedBox.value
+            let endIndex = _string.withUTF8 { buffer -> Int? in
+                let endIndex = buffer.endIndex
+                if let endIndex = optimized.advancedIndex(in: buffer, range: utf8Index..<endIndex) {
+                    return endIndex
+                } else {
+                    return nil
+                }
             }
-            return string[_currentIndex..<endIndex]
+            
+            if let endIndex = endIndex {
+                let converted = string.utf8.index(string.utf8.startIndex, offsetBy: endIndex)
+                defer {
+                    self.utf8Index = endIndex
+                    self._currentIndex = converted
+                }
+                return string[currentIndex..<converted]
+            } else {
+                return nil
+            }
+            
         } else {
-            return nil
+            let endIndex = _string.endIndex
+            if let endIndex = matcher.advancedIndex(in: _string, range: _currentIndex..<endIndex) {
+                defer {
+                    _currentIndex = endIndex
+                }
+                
+                return _string[_currentIndex..<endIndex]
+            } else {
+                return nil
+            }
         }
+        
     }
 }

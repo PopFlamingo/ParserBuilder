@@ -131,14 +131,13 @@ final class ParserBuilderTests: XCTestCase {
     }
     
     func testRaw() {
-        print((Matcher("abcd\r\n") && Matcher.any()).computeOptimized())
-        /*
-        var a = "!abcdkljaezlkjza"
-        let result = a.withUTF8 { string in
-            Matcher<UInt8, [UInt8]>([33,34]).advancedIndex(in: string)
-        }
-        print(result)
-        */
+        var extractor = Extractor("heywow")
+        var matcher = Matcher("wow")
+        var matcher2 = Matcher("hey")
+        matcher.optimize()
+        matcher2.optimize()
+        print(extractor.popCurrent(with: matcher))
+        print(extractor.popCurrent(with: matcher2))
     }
         
     static var allTests = [
