@@ -217,25 +217,12 @@ public struct GenericMatcher<C>: ExpressibleByArrayLiteral where C: Collection, 
     }
 }
 
-
-
 extension String {
     @inlinable
     var utf8Characters: [UInt8] {
         var copy = self
         return copy.withUTF8({ Array($0) })
     }
-}
-
-
-@usableFromInline
-class Box<T> {
-    @inlinable
-    init(_ value: T) {
-        self.value = value
-    }
-    @usableFromInline
-    var value: T
 }
 
 extension GenericMatcher where C == String {
