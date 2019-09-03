@@ -243,11 +243,13 @@ class Box<T> {
 
 extension GenericMatcher where C == String {
     
+    @discardableResult
     @inlinable
-    public func optimize() {
+    public func optimize() -> GenericMatcher {
         if let optimized = self.computeOptimized() {
             self.optimized.value = optimized
         }
+        return self
     }
     
     @inlinable
