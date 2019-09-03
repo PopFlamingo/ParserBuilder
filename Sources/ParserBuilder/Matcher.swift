@@ -1,9 +1,4 @@
-public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
-    
-    @inlinable
-    public init(stringLiteral value: String) {
-        self.matcher = .string(value)
-    }
+public struct Matcher<T, C>: ExpressibleByArrayLiteral where T: Comparable, C: Collection, C.Element == T {
     
     @inlinable
     public init(arrayLiteral elements: Matcher...) {
@@ -12,25 +7,28 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
     
     @inlinable
     public init(_ matcherArray: [Matcher]) {
-        self = matcherArray.reduce(Matcher.never, ||)
+        self = matcherArray.reduce(Matcher.never(), ||)
     }
     
     @inlinable
-    public init(_ matchedString: String) {
-        self.matcher = .string(matchedString)
+    public init(_ matchedString: C) {
+        self.matcher = .collection(matchedString)
     }
     
     @inlinable
-    init(_ predicate: @escaping (Character)->Bool) {
+    init(_ predicate: @escaping (T)->Bool) {
         self.matcher = .predicate(predicate)
     }
     
     @inlinable
-    public init(_ characterRange: ClosedRange<Character>) {
+    public init(_ characterRange: ClosedRange<T>) {
         self.matcher = .closedRange(characterRange)
     }
     
-    public static let anyCharacter: Matcher = .init(matcher: .anyCharacter)
+     @inlinable
+    public static func any() -> Matcher<T,C> {
+        return .init(matcher: .anyCharacter)
+    }
     
     @usableFromInline
     init(matcher: InternalMatcher) {
@@ -38,35 +36,35 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
     }
     
     @inlinable
-    public static prefix func !(matcher: Matcher) -> Matcher {
-        return Matcher(matcher: .not(matcher))
+    public static prefix func !(matcher: Matcher<T,C>) -> Matcher<T,C> {
+        return Matcher<T,C>(matcher: .not(matcher))
     }
     
     @inlinable
-    public static func +(lhs: Matcher, rhs: Matcher) -> Matcher {
-        return Matcher(matcher: .concatenation(lhs, rhs))
+    public static func +(lhs: Matcher<T,C>, rhs: Matcher<T,C>) -> Matcher<T,C> {
+        return Matcher<T,C>(matcher: .concatenation(lhs, rhs))
     }
     
     @inlinable
-    public static func ||(lhs: Matcher, rhs: Matcher) -> Matcher {
-        return Matcher(matcher: .or(lhs, rhs))
+    public static func ||(lhs: Matcher<T,C>, rhs: Matcher<T,C>) -> Matcher<T,C> {
+        return Matcher<T,C>(matcher: .or(lhs, rhs))
     }
     
     @inlinable
-    public static func &&(lhs: Matcher, rhs: Matcher) -> Matcher {
-        return Matcher(matcher: .and(lhs, rhs))
+    public static func &&(lhs: Matcher<T,C>, rhs: Matcher<T,C>) -> Matcher<T,C> {
+        return Matcher<T,C>(matcher: .and(lhs, rhs))
     }
     
     @inlinable
-    public func advancedIndex(in string: String) -> String.Index? {
+    public func advancedIndex(in string: C) -> C.Index? {
         return advancedIndex(in: string, range: string.startIndex..<string.endIndex)
         
     }
     
     @inlinable
-    public func advancedIndex(in string: String, range: Range<String.Index>) -> String.Index? {
+    public func advancedIndex(in string: C, range: Range<C.Index>) -> C.Index? {
         switch self.matcher {
-        case .string(let matchedString):
+        case .collection(let matchedString):
             guard !matchedString.isEmpty else {
                 return range.lowerBound
             }
@@ -167,33 +165,33 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
     }
     
     @inlinable
-    public func count(_ repeatRange: PartialRangeThrough<Int>) -> Matcher {
+    public func count(_ repeatRange: PartialRangeThrough<Int>) -> Matcher<T,C> {
         precondition(repeatRange.upperBound >= 0)
-        return Matcher(matcher: .repeated(self, nil, repeatRange.upperBound, true))
+        return Matcher<T,C>(matcher: .repeated(self, nil, repeatRange.upperBound, true))
     }
     
     @inlinable
-    public func count(_ repeatRange: PartialRangeUpTo<Int>) -> Matcher {
+    public func count(_ repeatRange: PartialRangeUpTo<Int>) -> Matcher<T,C> {
         precondition(repeatRange.upperBound >= 0)
-        return Matcher(matcher: .repeated(self, nil, repeatRange.upperBound, false))
+        return Matcher<T,C>(matcher: .repeated(self, nil, repeatRange.upperBound, false))
     }
     
     @inlinable
-    public func count(_ repeatRange: PartialRangeFrom<Int>) -> Matcher {
+    public func count(_ repeatRange: PartialRangeFrom<Int>) -> Matcher<T,C> {
         precondition(repeatRange.lowerBound >= 0)
-        return Matcher(matcher: .repeated(self, repeatRange.lowerBound, nil, true))
+        return Matcher<T,C>(matcher: .repeated(self, repeatRange.lowerBound, nil, true))
     }
     
     @inlinable
-    public func count(_ repeatRange: ClosedRange<Int>) -> Matcher {
+    public func count(_ repeatRange: ClosedRange<Int>) -> Matcher<T,C> {
         precondition(repeatRange.lowerBound >= 0 && repeatRange.upperBound >= 0)
-        return Matcher(matcher: .repeated(self, repeatRange.lowerBound, repeatRange.upperBound, true))
+        return Matcher<T,C>(matcher: .repeated(self, repeatRange.lowerBound, repeatRange.upperBound, true))
     }
     
     @inlinable
-    public func count(_ repeatRange: Range<Int>) -> Matcher {
+    public func count(_ repeatRange: Range<Int>) -> Matcher<T,C> {
         precondition(repeatRange.lowerBound >= 0 && repeatRange.upperBound >= 0)
-        return Matcher(matcher: .repeated(self, repeatRange.lowerBound, repeatRange.upperBound, false))
+        return Matcher<T,C>(matcher: .repeated(self, repeatRange.lowerBound, repeatRange.upperBound, false))
     }
     
     @inlinable
@@ -211,23 +209,29 @@ public struct Matcher: ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
         return self.count(minimum...)
     }
     
-    //FIXME: This is not the same as `Matcher("")`, is this correct?
+    //FIXME: This is not the same as `StringMatcher("")`, is this correct?
     @usableFromInline
-    static let never: Matcher = Matcher { _ in false }
+    static func never() -> Matcher<T,C> {
+        Matcher<T,C> { _ in
+            false
+        }
+    }
     
     @usableFromInline
     let matcher: InternalMatcher
     
     @usableFromInline
     indirect enum InternalMatcher {
-        case string(String)
-        case predicate((Character)->Bool)
+        case collection(C)
+        case predicate((T)->Bool)
         case concatenation(Matcher, Matcher)
         case or(Matcher, Matcher)
         case repeated(Matcher, Int?, Int?, Bool)
-        case closedRange(ClosedRange<Character>)
+        case closedRange(ClosedRange<T>)
         case not(Matcher)
         case and(Matcher, Matcher)
         case anyCharacter
     }
 }
+
+public typealias StringMatcher = Matcher<Character,String>
