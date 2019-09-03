@@ -17,7 +17,7 @@ public struct Extractor {
     }
     
     @inlinable
-    mutating public func matches(for matcher: StringMatcher) -> [Substring] {
+    mutating public func matches(for matcher: GenericMatcher<String>) -> [Substring] {
         var matches = [Substring]()
         let endIndex = string.endIndex
         while _currentIndex < string.endIndex {
@@ -31,7 +31,7 @@ public struct Extractor {
         return matches
     }
     @inlinable
-    public mutating func peekCurrent(with matcher: StringMatcher) -> Substring? {
+    public mutating func peekCurrent(with matcher: GenericMatcher<String>) -> Substring? {
         guard _currentIndex < string.endIndex else {
             return nil
         }
@@ -45,7 +45,7 @@ public struct Extractor {
     
     @discardableResult
     @inlinable
-    public mutating func popCurrent(with matcher: StringMatcher) -> Substring? {
+    public mutating func popCurrent(with matcher: GenericMatcher<String>) -> Substring? {
         guard _currentIndex < string.endIndex else {
             return nil
         }
