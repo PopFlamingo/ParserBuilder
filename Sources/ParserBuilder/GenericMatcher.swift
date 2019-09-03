@@ -228,7 +228,7 @@ extension String {
 extension GenericMatcher where C == String {
     
     @inlinable
-    func optimized() -> GenericMatcher<[UInt8]>? {
+    public func optimized() -> GenericMatcher<[UInt8]>? {
         switch self.matcher {
         
         case .collection(let string):
