@@ -71,6 +71,17 @@ public struct Extractor {
         }
     }
     
+    @discardableResult
+    @inlinable
+    public mutating func popCurrent(with matcherKind: MatcherKind) -> Substring? {
+        switch matcherKind {
+        case .optimized(let optimized):
+            return self.popCurrent(with: optimized)
+        case .standard(let standard):
+            return self.popCurrent(with: standard)
+        }
+    }
+    
     
     @discardableResult
     @inlinable

@@ -305,3 +305,9 @@ extension GenericMatcher: ExpressibleByStringLiteral where C == String {
         self.init(value)
     }
 }
+
+
+public enum MatcherKind {
+    case standard(Matcher)
+    case optimized(GenericMatcher<[UInt8]>)
+}
