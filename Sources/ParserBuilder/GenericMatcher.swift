@@ -51,38 +51,38 @@ public struct GenericMatcher<C>: ExpressibleByArrayLiteral where C: Collection, 
     }
     
     @inlinable
-    public func advancedIndex<D>(in string: D) -> C.Index? where D: Collection, D.Element == C.Element, D.Index == C.Index {
-        return advancedIndex(in: string, range: string.startIndex..<string.endIndex)
+    public func advancedIndex<D>(in collection: D) -> C.Index? where D: Collection, D.Element == C.Element, D.Index == C.Index {
+        return advancedIndex(in: collection, range: collection.startIndex..<collection.endIndex)
         
     }
     
     @inlinable
-    public func advancedIndex<D>(in string: D, range: Range<C.Index>) -> C.Index? where D: Collection, D.Element == C.Element, D.Index == C.Index {
+    public func advancedIndex<D>(in collection: D, range: Range<C.Index>) -> C.Index? where D: Collection, D.Element == C.Element, D.Index == C.Index {
         switch self.matcher {
         case .single(let value):
-            guard !range.isEmpty && range.lowerBound < string.endIndex else {
+            guard !range.isEmpty && range.lowerBound < collection.endIndex else {
                 return nil
             }
-            if value == string[range.lowerBound] {
-                return string.index(after: range.lowerBound)
+            if value == collection[range.lowerBound] {
+                return collection.index(after: range.lowerBound)
             } else {
                 return nil
             }
             
-        case .collection(let matchedString):
-            guard !matchedString.isEmpty else {
+        case .collection(let matchedCollection):
+            guard !matchedCollection.isEmpty else {
                 return range.lowerBound
             }
-            var matchedIndex = matchedString.startIndex
+            var matchedIndex = matchedCollection.startIndex
             var index = range.lowerBound
             
-            while matchedIndex < matchedString.endIndex {
-                guard index < string.endIndex else {
+            while matchedIndex < matchedCollection.endIndex {
+                guard index < collection.endIndex else {
                     return nil
                 }
-                if matchedString[matchedIndex] == string[index] {
-                    matchedIndex = matchedString.index(after: matchedIndex)
-                    index = string.index(after: index)
+                if matchedCollection[matchedIndex] == collection[index] {
+                    matchedIndex = matchedCollection.index(after: matchedIndex)
+                    index = collection.index(after: index)
                 } else {
                     return nil
                 }
@@ -90,19 +90,19 @@ public struct GenericMatcher<C>: ExpressibleByArrayLiteral where C: Collection, 
             return index
             
         case .or(let lhs, let rhs):
-            if let first = lhs.advancedIndex(in: string, range: range) {
+            if let first = lhs.advancedIndex(in: collection, range: range) {
                 return first
-            } else if let second = rhs.advancedIndex(in: string, range: range) {
+            } else if let second = rhs.advancedIndex(in: collection, range: range) {
                 return second
             } else {
                 return nil
             }
             
         case .concatenation(let first, let second):
-            guard let firstIndex = first.advancedIndex(in: string, range: range) else {
+            guard let firstIndex = first.advancedIndex(in: collection, range: range) else {
                 return nil
             }
-            let secondIndex = second.advancedIndex(in: string, range: firstIndex..<range.upperBound)
+            let secondIndex = second.advancedIndex(in: collection, range: firstIndex..<range.upperBound)
             return secondIndex
             
         case .repeated(let matcher, let min, let max, let maxIsIncluded):
@@ -118,7 +118,7 @@ public struct GenericMatcher<C>: ExpressibleByArrayLiteral where C: Collection, 
                 actualMax = nil
             }
             
-            while currentIndex < range.upperBound, repeatCount != actualMax, let newIndex = matcher.advancedIndex(in: string, range: currentIndex..<range.upperBound) {
+            while currentIndex < range.upperBound, repeatCount != actualMax, let newIndex = matcher.advancedIndex(in: collection, range: currentIndex..<range.upperBound) {
                 currentIndex = newIndex
                 repeatCount += 1
             }
@@ -129,30 +129,30 @@ public struct GenericMatcher<C>: ExpressibleByArrayLiteral where C: Collection, 
                 return currentIndex
             }
             
-        case .closedRange(let charRange):
-            if !string.isEmpty, case let first = string[range.lowerBound], charRange.contains(first) {
-                return string.index(after: range.lowerBound)
+        case .closedRange(let elementRange):
+            if !collection.isEmpty, case let first = collection[range.lowerBound], elementRange.contains(first) {
+                return collection.index(after: range.lowerBound)
             } else {
                 return nil
             }
             
         case .not(let matcher):
-            if matcher.advancedIndex(in: string, range: range) != nil {
+            if matcher.advancedIndex(in: collection, range: range) != nil {
                 return nil
             } else {
                 return range.lowerBound
             }
             
         case .and(let lhs, let rhs):
-            if let lhsIndex = lhs.advancedIndex(in: string, range: range), let rhsIndex = rhs.advancedIndex(in: string, range: range) {
+            if let lhsIndex = lhs.advancedIndex(in: collection, range: range), let rhsIndex = rhs.advancedIndex(in: collection, range: range) {
                 return max(lhsIndex, rhsIndex)
             } else {
                 return nil
             }
             
         case .any:
-            if range.lowerBound != range.upperBound && !string.isEmpty {
-                return string.index(after: range.lowerBound)
+            if range.lowerBound != range.upperBound && !collection.isEmpty {
+                return collection.index(after: range.lowerBound)
             } else {
                 return nil
             }
@@ -204,7 +204,6 @@ public struct GenericMatcher<C>: ExpressibleByArrayLiteral where C: Collection, 
         return self.count(minimum...)
     }
     
-    //FIXME: This is not the same as `StringMatcher("")`, is this correct?
     @usableFromInline
     static func never() -> GenericMatcher<C> {
         !GenericMatcher<C>.any()
