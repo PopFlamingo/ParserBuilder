@@ -59,6 +59,16 @@ public struct GenericMatcher<C>: ExpressibleByArrayLiteral where C: Collection, 
     @inlinable
     public func advancedIndex<D>(in string: D, range: Range<C.Index>) -> C.Index? where D: Collection, D.Element == C.Element, D.Index == C.Index {
         switch self.matcher {
+        case .single(let value):
+            guard !range.isEmpty && range.lowerBound < string.endIndex else {
+                return nil
+            }
+            if value == string[range.lowerBound] {
+                return string.index(after: range.lowerBound)
+            } else {
+                return nil
+            }
+            
         case .collection(let matchedString):
             guard !matchedString.isEmpty else {
                 return range.lowerBound
@@ -203,9 +213,45 @@ public struct GenericMatcher<C>: ExpressibleByArrayLiteral where C: Collection, 
     @usableFromInline
     let matcher: InternalMatcher
     
+    @inlinable
+    func optimizeToSingle() -> GenericMatcher<C> {
+        switch self.matcher {
+        case .single(_):
+            return self
+            
+        case .collection(let c):
+            if let first = c.first, c.count == 1 {
+                return GenericMatcher<C>(matcher: .single(first))
+            } else {
+                return self
+            }
+            
+        case .concatenation(let lhs, let rhs):
+            return lhs.optimizeToSingle() + rhs.optimizeToSingle()
+            
+        case .or(let lhs, let rhs):
+            return lhs.optimizeToSingle() || rhs.optimizeToSingle()
+            
+        case .repeated(let val, let min, let max, let maxIsIncluded):
+            return GenericMatcher<C>(matcher: .repeated(val.optimizeToSingle(), min, max, maxIsIncluded))
+            
+        case .closedRange(_):
+            return self
+            
+        case .not(let inverted):
+            return !(inverted.optimizeToSingle())
+            
+        case .and(let lhs, let rhs):
+            return lhs.optimizeToSingle() && rhs.optimizeToSingle()
+            
+        case .any:
+            return self
+        }
+    }
     
     @usableFromInline
     indirect enum InternalMatcher {
+        case single(C.Element)
         case collection(C)
         case concatenation(GenericMatcher, GenericMatcher)
         case or(GenericMatcher, GenericMatcher)
@@ -226,11 +272,25 @@ extension String {
 }
 
 extension GenericMatcher where C == String {
+    @inlinable
+    public func optimized() -> MatcherKind {
+        if let asciiOptimized = self.optimizedToASCII() {
+            return .optimized(asciiOptimized.optimizeToSingle())
+        } else {
+            return .standard(self.optimizeToSingle())
+        }
+    }
     
     @inlinable
-    public func optimized() -> GenericMatcher<[UInt8]>? {
+    public func optimizedToASCII() -> GenericMatcher<[UInt8]>? {
         switch self.matcher {
-        
+        case .single(let value):
+            if let asciiValue = value.asciiValue {
+                return GenericMatcher<[UInt8]>(matcher: .single(asciiValue))
+            } else {
+                return nil
+            }
+            
         case .collection(let string):
             if string.allSatisfy({ $0.isASCII }) {
                 return GenericMatcher<[UInt8]>(string.utf8Characters)
@@ -239,21 +299,21 @@ extension GenericMatcher where C == String {
             }
         
         case .concatenation(let lhs, let rhs):
-            if let oLHS = lhs.optimized(), let oRHS = rhs.optimized() {
+            if let oLHS = lhs.optimizedToASCII(), let oRHS = rhs.optimizedToASCII() {
                 return oLHS + oRHS
             } else {
                 return nil
             }
             
         case .or(let lhs, let rhs):
-            if let oLHS = lhs.optimized(), let oRHS = rhs.optimized() {
+            if let oLHS = lhs.optimizedToASCII(), let oRHS = rhs.optimizedToASCII() {
                 return oLHS || oRHS
             } else {
                 return nil
             }
             
         case .repeated(let matcher, let min, let max, let maxIsIncluded):
-            if let oMatcher = matcher.optimized() {
+            if let oMatcher = matcher.optimizedToASCII() {
                 return GenericMatcher<[UInt8]>(matcher: .repeated(oMatcher, min, max, maxIsIncluded))
             } else {
                 return nil
@@ -267,14 +327,14 @@ extension GenericMatcher where C == String {
             }
             
         case .not(let inverted):
-            if let optimized = inverted.optimized() {
+            if let optimized = inverted.optimizedToASCII() {
                 return !optimized
             } else {
                 return nil
             }
             
         case .and(let lhs, let rhs):
-            if let oLHS = lhs.optimized(), let oRHS = rhs.optimized() {
+            if let oLHS = lhs.optimizedToASCII(), let oRHS = rhs.optimizedToASCII() {
                 return oLHS && oRHS
             } else {
                 return nil

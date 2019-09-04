@@ -133,7 +133,7 @@ final class ParserBuilderTests: XCTestCase {
     func testOptimized() {
         var extractor = Extractor("heywowamazing")
         let matcher = Matcher("hey")
-        let matcher2 = Matcher("wow").optimized()!
+        let matcher2 = Matcher("wow").optimized()
         let matcher3 = Matcher("amazing")
         XCTAssertEqual(extractor.popCurrent(with: matcher), "hey")
         XCTAssertEqual(extractor.popCurrent(with: matcher2), "wow")
