@@ -134,10 +134,30 @@ final class ParserBuilderTests: XCTestCase {
         var extractor = Extractor("heywowamazing")
         let matcher = Matcher("hey")
         let matcher2 = Matcher("wow").optimized()
+        switch matcher2 {
+        case .optimized(_):
+            break
+        case .standard(_):
+            XCTFail("matcher2 hasn't been optimized while it should")
+        }
         let matcher3 = Matcher("amazing")
         XCTAssertEqual(extractor.popCurrent(with: matcher), "hey")
         XCTAssertEqual(extractor.popCurrent(with: matcher2), "wow")
         XCTAssertEqual(extractor.popCurrent(with: matcher3), "amazing")
+        
+        
+        // ASCII opti shouldn't be done in cases where the behaviour
+        // is not provably identical between ASCII matcher and unicode matcher
+        var unicodeExtractor = Extractor("🦜")
+        XCTAssertEqual(unicodeExtractor.popCurrent(with: Matcher.any().count(1).optimized()), "🦜")
+        
+        let matcher4 = Matcher.any().atLeast(0).optimized()
+        switch matcher4 {
+        case .optimized(_):
+            break
+        case .standard(_):
+            XCTFail("matcher4 hasn't been optimized while it should")
+        }
     }
         
     static var allTests = [
