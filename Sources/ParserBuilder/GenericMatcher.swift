@@ -312,7 +312,7 @@ extension GenericMatcher where C == String {
             }
             
         case .repeated(let matcher, let min, let max, let maxIsIncluded):
-            if let oMatcher = matcher.optimizedToASCII(), min == 0 || min == nil, max == nil {
+            if let oMatcher = matcher.optimizedToASCII(), max == nil {
                 return GenericMatcher<[UInt8]>(matcher: .repeated(oMatcher, min, max, maxIsIncluded))
             } else {
                 return nil
