@@ -40,7 +40,7 @@ public struct Extractor {
         return matches
     }
     @inlinable
-    public mutating func peekCurrent(with matcher: Matcher) -> Substring? {
+    public func peekCurrent(with matcher: Matcher) -> Substring? {
         guard _currentIndex < _string.endIndex else {
             return nil
         }

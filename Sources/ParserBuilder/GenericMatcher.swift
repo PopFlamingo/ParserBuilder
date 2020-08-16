@@ -326,11 +326,7 @@ extension GenericMatcher where C == String {
             }
             
         case .not(let inverted):
-            if let optimized = inverted.optimizedToASCII() {
-                return !optimized
-            } else {
-                return nil
-            }
+            return nil
             
         case .and(let lhs, let rhs):
             if let oLHS = lhs.optimizedToASCII(), let oRHS = rhs.optimizedToASCII() {
@@ -340,7 +336,7 @@ extension GenericMatcher where C == String {
             }
             
         case .any:
-            return GenericMatcher<[UInt8]>.any()
+            return nil
         }
     }
 }

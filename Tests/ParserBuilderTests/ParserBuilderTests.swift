@@ -154,9 +154,16 @@ final class ParserBuilderTests: XCTestCase {
         let matcher4 = Matcher.any().atLeast(0).optimized()
         switch matcher4 {
         case .optimized(_):
-            break
+            XCTFail("Currently the analysis isn't good enough to determine if a matcher with .any() is safe to optimize, only disable this failure if this has changed. Actually it's probably not possible in all cases as .any() matches element by element.")
         case .standard(_):
-            XCTFail("matcher4 hasn't been optimized while it should")
+            break
+        }
+                
+        switch (!Matcher("a")).optimized() {
+        case .optimized(_):
+            XCTFail("Currently the analysis isn't good enough to determine if a matcher with .not() is safe to optimize, only disable this failure if this has changed. Actually it's probably not possible in all cases as .not(something) matches element by element.")
+        case .standard(_):
+            break
         }
     }
     
@@ -165,6 +172,14 @@ final class ParserBuilderTests: XCTestCase {
         let nonNumbers = (!numberMatcher).count(0...)
         var extractor = Extractor("kljlkj1.11/21")
         XCTAssertEqual(extractor.popCurrent(with: nonNumbers), "kljlkj")
+    }
+    
+    func testASCIIOptiDoesntCutUnicode() {
+        guard let opti = Matcher.any().optimizedToASCII() else {
+            return
+        }
+        var extractor = Extractor("✂️")
+        XCTAssertEqual(extractor.popCurrent(with: opti), "✂️")
     }
         
     static var allTests = [
