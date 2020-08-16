@@ -96,7 +96,7 @@ final class ParserBuilderTests: XCTestCase {
     func testNot() {
         let notA = !Matcher("abc")
         XCTAssertNil(notA.advancedIndex(in: "abc"))
-        XCTAssertEqual(notA.advancedIndex(in: "b"), "b".startIndex)
+        XCTAssertEqual(notA.advancedIndex(in: "b"), "b".endIndex)
     }
     
     func testAnd() {
@@ -158,6 +158,13 @@ final class ParserBuilderTests: XCTestCase {
         case .standard(_):
             XCTFail("matcher4 hasn't been optimized while it should")
         }
+    }
+    
+    func testUnmatchedCount() {
+        let numberMatcher = Matcher("1")
+        let nonNumbers = (!numberMatcher).count(0...)
+        var extractor = Extractor("kljlkj1.11/21")
+        XCTAssertEqual(extractor.popCurrent(with: nonNumbers), "kljlkj")
     }
         
     static var allTests = [
