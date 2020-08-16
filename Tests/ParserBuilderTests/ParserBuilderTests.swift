@@ -182,6 +182,7 @@ final class ParserBuilderTests: XCTestCase {
         ("testAnd", testAnd),
         ("testMatcherLongerThanString", testMatcherLongerThanString),
         ("testMatcherAnyCharacter", testMatcherAnyCharacter),
-        ("testOptimized", testOptimized)
+        ("testOptimized", testOptimized),
+        ("testUnmatchedCount", testUnmatchedCount)
     ]
 }
