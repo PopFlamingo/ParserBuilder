@@ -325,7 +325,7 @@ extension GenericMatcher where C == String {
                 return nil
             }
             
-        case .not(let inverted):
+        case .not:
             return nil
             
         case .and(let lhs, let rhs):
