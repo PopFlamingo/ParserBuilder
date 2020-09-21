@@ -1,33 +1,31 @@
-public struct Extractor {
+public struct Extractor<T: StringProtocol> {
     @inlinable
-    public init(_ string: String) {
-        var contiguousString = string
-        contiguousString.makeContiguousUTF8()
-        self._string = contiguousString
+    public init(_ string: T) {
+        self._string = string
         self._currentIndex = string.startIndex
         self.utf8Index = 0
     }
     
-    public var string: String {
+    public var string: T {
         _string
     }
     
-    public var _string: String
+    public var _string: T
     
     @usableFromInline
-    var _currentIndex: String.Index
+    var _currentIndex: T.Index
     
     @usableFromInline
     var utf8Index: Int
     
     @inlinable
-    public var currentIndex: String.Index {
+    public var currentIndex: T.Index {
         _currentIndex
     }
     
     @inlinable
-    mutating public func matches(for matcher: Matcher) -> [Substring] {
-        var matches = [Substring]()
+    mutating public func matches(for matcher: Matcher) -> [T.SubSequence] {
+        var matches = [T.SubSequence]()
         let endIndex = string.endIndex
         while _currentIndex < string.endIndex {
             if let nextIndex = matcher.advancedIndex(in: string, range: _currentIndex..<endIndex) {
@@ -40,7 +38,7 @@ public struct Extractor {
         return matches
     }
     @inlinable
-    public func peekCurrent(with matcher: Matcher) -> Substring? {
+    public func peekCurrent(with matcher: Matcher) -> T.SubSequence? {
         guard _currentIndex < _string.endIndex else {
             return nil
         }
@@ -54,7 +52,7 @@ public struct Extractor {
     
     @discardableResult
     @inlinable
-    public mutating func popCurrent(with matcher: Matcher) -> Substring? {
+    public mutating func popCurrent(with matcher: Matcher) -> T.SubSequence? {
         guard _currentIndex < _string.endIndex else {
             return nil
         }
@@ -70,10 +68,13 @@ public struct Extractor {
             return nil
         }
     }
-    
+}
+
+
+extension Extractor where T == String {
     @discardableResult
     @inlinable
-    public mutating func popCurrent(with matcherKind: MatcherKind) -> Substring? {
+    public mutating func popCurrent(with matcherKind: MatcherKind) -> T.SubSequence? {
         switch matcherKind {
         case .optimized(let optimized):
             return self.popCurrent(with: optimized)
@@ -82,10 +83,9 @@ public struct Extractor {
         }
     }
     
-    
     @discardableResult
     @inlinable
-    public mutating func popCurrent(with matcher: GenericMatcher<[UInt8]>) -> Substring? {
+    public mutating func popCurrent(with matcher: GenericMatcher<[UInt8]>) -> T.SubSequence? {
         guard _currentIndex < _string.endIndex else {
             return nil
         }
