@@ -130,7 +130,7 @@ public struct GenericMatcher<C>: ExpressibleByArrayLiteral where C: Collection, 
             }
             
         case .closedRange(let elementRange):
-            if !collection.isEmpty, case let first = collection[range.lowerBound], elementRange.contains(first) {
+            if range.lowerBound < collection.endIndex, !collection.isEmpty, case let first = collection[range.lowerBound], elementRange.contains(first) {
                 return collection.index(after: range.lowerBound)
             } else {
                 return nil

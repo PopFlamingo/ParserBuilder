@@ -181,6 +181,12 @@ final class ParserBuilderTests: XCTestCase {
         var extractor = Extractor("✂️")
         XCTAssertEqual(extractor.popCurrent(with: opti), "✂️")
     }
+    
+    func testNoBugUnmatchedRangeAtEnd() {
+        let matcher = Matcher.any() + Matcher("a"..."z")
+        var extractor = Extractor("1")
+        XCTAssertNil(extractor.popCurrent(with: matcher))
+    }
         
     static var allTests = [
         ("testMatcherString", testMatcherString),
@@ -199,6 +205,7 @@ final class ParserBuilderTests: XCTestCase {
         ("testMatcherAnyCharacter", testMatcherAnyCharacter),
         ("testOptimized", testOptimized),
         ("testUnmatchedCount", testUnmatchedCount),
-        ("testASCIIOptiDoesntCutUnicode", testASCIIOptiDoesntCutUnicode)
+        ("testASCIIOptiDoesntCutUnicode", testASCIIOptiDoesntCutUnicode),
+        ("testNoBugUnmatchedRangeAtEnd", testNoBugUnmatchedRangeAtEnd)
     ]
 }
