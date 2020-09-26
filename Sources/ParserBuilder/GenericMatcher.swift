@@ -140,7 +140,7 @@ public struct GenericMatcher<C>: ExpressibleByArrayLiteral where C: Collection, 
             if matcher.advancedIndex(in: collection, range: range) != nil {
                 return nil
             } else {
-                return collection.index(after: range.lowerBound)
+                return collection.index(range.lowerBound, offsetBy: 1, limitedBy: range.upperBound)
             }
             
         case .and(let lhs, let rhs):

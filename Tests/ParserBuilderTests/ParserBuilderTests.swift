@@ -187,6 +187,12 @@ final class ParserBuilderTests: XCTestCase {
         var extractor = Extractor("1")
         XCTAssertNil(extractor.popCurrent(with: matcher))
     }
+    
+    func testNoBugNotMatcherAtEnd() {
+        let matcher = Matcher.any() + !Matcher("a")
+        var extractor = Extractor("a")
+        XCTAssertNil(extractor.popCurrent(with: matcher))
+    }
         
     static var allTests = [
         ("testMatcherString", testMatcherString),
