@@ -221,6 +221,7 @@ final class ParserBuilderTests: XCTestCase {
         ("testUnmatchedCount", testUnmatchedCount),
         ("testASCIIOptiDoesntCutUnicode", testASCIIOptiDoesntCutUnicode),
         ("testNoBugUnmatchedRangeAtEnd", testNoBugUnmatchedRangeAtEnd),
-        ("testNoBugNotMatcherAtEnd", testNoBugNotMatcherAtEnd)
+        ("testNoBugNotMatcherAtEnd", testNoBugNotMatcherAtEnd),
+        ("testEndMatcher", testEndMatcher)
     ]
 }
