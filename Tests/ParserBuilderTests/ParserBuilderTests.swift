@@ -194,6 +194,14 @@ final class ParserBuilderTests: XCTestCase {
         XCTAssertEqual(extractor.popCurrent(with: matcher), "a")
     }
     
+    func testStartMatcher() {
+        var extractor = Extractor("\nA")
+        let matcher: Matcher = .start() + "A"
+        XCTAssertTrue(extractor.matches(for: matcher).isEmpty)
+        extractor = .init("A")
+        XCTAssertFalse(extractor.matches(for: matcher).isEmpty)
+    }
+    
     func testEndMatcher() {
         let matcher = "A" + Matcher.end()
         var extractor = Extractor("A")
@@ -222,6 +230,7 @@ final class ParserBuilderTests: XCTestCase {
         ("testASCIIOptiDoesntCutUnicode", testASCIIOptiDoesntCutUnicode),
         ("testNoBugUnmatchedRangeAtEnd", testNoBugUnmatchedRangeAtEnd),
         ("testNoBugNotMatcherAtEnd", testNoBugNotMatcherAtEnd),
+        ("testStartMatcher", testStartMatcher),
         ("testEndMatcher", testEndMatcher)
     ]
 }

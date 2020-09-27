@@ -26,6 +26,11 @@ public struct GenericMatcher<C>: ExpressibleByArrayLiteral where C: Collection, 
     }
     
     @inlinable
+    public static func start() -> GenericMatcher<C> {
+        return .init(matcher: .start)
+    }
+    
+    @inlinable
     public static func end() -> GenericMatcher<C> {
         return !any()
     }
@@ -64,6 +69,8 @@ public struct GenericMatcher<C>: ExpressibleByArrayLiteral where C: Collection, 
     @inlinable
     public func advancedIndex<D>(in collection: D, range: Range<C.Index>) -> C.Index? where D: Collection, D.Element == C.Element, D.Index == C.Index {
         switch self.matcher {
+        case .start:
+            return range.lowerBound == collection.startIndex ? range.lowerBound : nil
         case .single(let value):
             guard !range.isEmpty && range.lowerBound < collection.endIndex else {
                 return nil
@@ -220,6 +227,8 @@ public struct GenericMatcher<C>: ExpressibleByArrayLiteral where C: Collection, 
     @inlinable
     func optimizeToSingle() -> GenericMatcher<C> {
         switch self.matcher {
+        case .start:
+            return self
         case .single(_):
             return self
             
@@ -255,6 +264,7 @@ public struct GenericMatcher<C>: ExpressibleByArrayLiteral where C: Collection, 
     
     @usableFromInline
     indirect enum InternalMatcher {
+        case start
         case single(C.Element)
         case collection(C)
         case concatenation(GenericMatcher, GenericMatcher)
@@ -288,6 +298,8 @@ extension GenericMatcher where C == String {
     @inlinable
     public func optimizedToASCII() -> GenericMatcher<[UInt8]>? {
         switch self.matcher {
+        case .start:
+            return GenericMatcher<[UInt8]>(matcher: .start)
         case .single(let value):
             if let asciiValue = value.asciiValue {
                 return GenericMatcher<[UInt8]>(matcher: .single(asciiValue))
