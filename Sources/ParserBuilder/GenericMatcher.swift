@@ -20,9 +20,14 @@ public struct GenericMatcher<C>: ExpressibleByArrayLiteral where C: Collection, 
         self.matcher = .closedRange(characterRange)
     }
     
-     @inlinable
+    @inlinable
     public static func any() -> GenericMatcher<C> {
         return .init(matcher: .any)
+    }
+    
+    @inlinable
+    public static func end() -> GenericMatcher<C> {
+        return !any()
     }
     
     @usableFromInline
@@ -140,7 +145,7 @@ public struct GenericMatcher<C>: ExpressibleByArrayLiteral where C: Collection, 
             if matcher.advancedIndex(in: collection, range: range) != nil {
                 return nil
             } else {
-                return collection.index(range.lowerBound, offsetBy: 1, limitedBy: range.upperBound)
+                return collection.index(range.lowerBound, offsetBy: 1, limitedBy: range.upperBound) ?? range.upperBound
             }
             
         case .and(let lhs, let rhs):
